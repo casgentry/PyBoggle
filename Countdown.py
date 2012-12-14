@@ -7,6 +7,7 @@
 
   Let user pick words & check against list.
 """
+import platform
 
 class Countdown():
 
@@ -34,9 +35,14 @@ class Countdown():
       
   def drawClock(self, time):
     canvas.delete('all')
+    # mac and windows size differently
+    if platform.system() == "Windows":
+      size=50
+    else:
+      size=65
     self.label = canvas.create_text(25, 360, 
         text=time, 
         width=200,
         anchor="w",
-        font="Arial 65 bold",
+	font="Arial %d bold" % size,
       )

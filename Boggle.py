@@ -13,7 +13,7 @@ from Countdown import *
 from TrieNode import *
 from Tkinter import *
 from collections import defaultdict
-import random, sys, types, os, pprint, math
+import random, sys, types, os, pprint, math, platform
 
 _inidle = type(sys.stdin) == types.InstanceType and \
 	  sys.stdin.__class__.__name__ == 'PyShell'
@@ -165,6 +165,9 @@ class Boggle:
     WIDTH, HEIGHT = 400, 400
     
     root.bind("<Escape>", lambda _ : root.destroy())
+    root.bind_all('<Key>', self.key)
+    root.bind_all('<Button-1>', self.mouseClick)
+
     self.canvas = Canvas(root, 
         width = WIDTH, 
         height = HEIGHT, 
@@ -190,6 +193,11 @@ class Boggle:
 
   # draw letters on the board
   def paintgraphics(self):
+    # mac and windows size differently
+    if platform.system() == "Windows":
+      size=20
+    else:
+      size=35
     # 25px padding from edges
     r, c = 30, 30
     for i in range(5):
@@ -200,14 +208,33 @@ class Boggle:
             anchor="w", 
             fill=self.grid[i][j].color, 
             activefill="red",
-            font="Arial 35 bold",
+	    font="Arial %d bold" % size,
         )
+        self.grid[i][j].x = r
+        self.grid[i][j].y = c
+
         # increment row
         r += 65
       # increment column outside first loop  
       c += 65
       # reset to first row
-      r = 25
+      r = 30
+
+  #reads in user input
+  def key(self, event):
+    for i in range(5):
+      for j in range(5):
+        if self.grid[i][j].letter.lower() == event.keysym.lower():
+          print event.keysym + " is on the board."
+          self.grid[i][j].select(True)
+          #add to a word, err when no word possible?
+
+  def mouseClick(self, mouseevent):
+    print "(%d, %d)" %(mouseevent.x, mouseevent.y)
+    for i in range(5):
+      for j in range(5):
+        if mouseevent.x >= (self.grid[i][j].x-10) and mouseevent.x <= (self.grid[i][j].x+40) and mouseevent.y >= (self.grid[i][j].y-15) and mouseevent.y <= (self.grid[i][j].y+25):
+          self.grid[i][j].select(True)
 
   def randomBoard(self):
     board    = defaultdict(lambda : defaultdict(list)) 

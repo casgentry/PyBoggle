@@ -14,6 +14,15 @@ class Tile():
     self.letter  = letter
     self.row     = row
     self.column  = column
+    self.x       = None
+    self.y       = None
     self.visited = False     
     self.clicked = False
     self.color = "black"
+
+  def select(self, status):
+    self.clicked = status
+    if self.clicked:
+      self.color="green"
+    else:
+      self.color="black"
