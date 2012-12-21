@@ -181,9 +181,9 @@ class Boggle:
     # start the countdown clock
     self.clock = Countdown(180, self.canvas)
     self.root.title('Boggle')
-    self.canvas.pack(fill=BOTH, expand=YES)
     # draw the board
-    self.paintgraphics()
+    self.paintgraphics()    
+    self.canvas.pack(fill=BOTH, expand=YES)
     self.refresh()
     
   def refresh(self):
@@ -234,10 +234,24 @@ class Boggle:
       r = 30
 
       # draw submit button
-      b = Button(self.canvas, text = "Submit Word", command = self.tryWord, anchor="w")
-      b.configure(width = 10, height = 2, relief=RAISED)
-      b.pack(fill=BOTH, expand=1)
-      b_window = self.canvas.create_window(225, 360, anchor="w", window=b)
+      #button = Button(self.root, text = "Submit Word", command = lambda: self.tryWord(), anchor="w", width = 10, height = 2, relief=RAISED)
+      #button.bind('<Button-1>', self.tryWord())
+      #self.canvas.create_window(225, 360, anchor="w", window=button)
+
+      self.canvas.create_rectangle(235, 340, 310, 390, fill="gray50", outline="gray40", activefill="gray70", activeoutline="gray60")
+      self.canvas.create_text(245, 365, anchor="w", font="Arial %d bold" % (size/2), text="Submit\n Word")
+
+      # print user's found words
+      if self.guessList:
+	coorx, coory = 330, 25
+	for word in self.guessList:
+          self.canvas.create_text(coorx, coory,
+			text=word.lower(),
+			anchor="w",
+			fill="black",
+			font="Arial %d" % (size/2)
+			)
+	  coory += 20
 
   #reads in user input
   def key(self, event):
@@ -253,6 +267,9 @@ class Boggle:
     # only process mouse clicks if it falls within the board
     if mouseevent.x < 315 and mouseevent.y < 315:
       self.mouseWord(mouseevent.x, mouseevent.y)
+
+    if mouseevent.x > 235 and mouseevent.x < 310 and mouseevent.y > 340 and mouseevent.y < 390:
+      self.tryWord()
 
   def mouseWord(self, x, y):
     # map mouse clicks to a particular letter
@@ -275,11 +292,12 @@ class Boggle:
 
   def find(self, f, seq):
     try:
-      return seq.index(f)      
+      return (seq.index(f)+1)      
     except:
       return False
 
   def tryWord(self):
+    print "here"
     # user has hit the submit button
     word = ""
     for l in self.guess:
@@ -294,6 +312,8 @@ class Boggle:
 
     # reinitialize guess to empty
     self.guess = []
+
+    pprint.pprint(self.guessList)
 
   def randomBoard(self):
     board    = defaultdict(lambda : defaultdict(list)) 
