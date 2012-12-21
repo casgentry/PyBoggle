@@ -233,13 +233,15 @@ class Boggle:
       # reset to first row
       r = 30
 
-      # draw submit button
-      #button = Button(self.root, text = "Submit Word", command = lambda: self.tryWord(), anchor="w", width = 10, height = 2, relief=RAISED)
-      #button.bind('<Button-1>', self.tryWord())
-      #self.canvas.create_window(225, 360, anchor="w", window=button)
-
-      self.canvas.create_rectangle(235, 340, 310, 390, fill="gray50", outline="gray40", activefill="gray70", activeoutline="gray60")
-      self.canvas.create_text(245, 365, anchor="w", font="Arial %d bold" % (size/2), text="Submit\n Word")
+      self.canvas.create_rectangle(235, 340, 310, 390, 
+	  fill="gray50", outline="gray40", 
+	  activefill="gray70", activeoutline="gray60"
+	  )
+      self.canvas.create_text(245, 365, 
+	  anchor="w", 
+	  font="Arial %d bold" % (size/2), 
+	  text="Submit\n Word"
+	  )
 
       # print user's found words
       if self.guessList:
@@ -297,7 +299,6 @@ class Boggle:
       return False
 
   def tryWord(self):
-    print "here"
     # user has hit the submit button
     word = ""
     for l in self.guess:
@@ -339,7 +340,7 @@ class Boggle:
     return board
 
 def main():
-  root= Tk()
+  root = Tk()
   Boggle(root)
     
   if not _inidle:
