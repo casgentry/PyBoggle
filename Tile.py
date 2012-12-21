@@ -18,11 +18,11 @@ class Tile():
     self.y       = None
     self.visited = False     
     self.clicked = False
-    self.color = "black"
+    self.color = "#0B0E06"
 
   def select(self, status):
     self.clicked = status
     if self.clicked:
-      self.color="green"
+      self.color="#C67822"
     else:
-      self.color="black"
+      self.color="#0B0E06"

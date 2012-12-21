@@ -25,9 +25,21 @@ class Boggle:
     self.roots = {}
     self.guess = []
     self.guessList = []
+    self.stopClock = False
+    self.play = True
+
+    #define color scheme
+    self.black   = "#0B0E06"
+    self.lyellow = "#F1D58A"
+    self.yellow  = "#E7C963"
+    self.ygreen  = "#A6AE33"
+    self.orange  = "#C67822"
+    self.blue    = "#438288"
+    self.green   = "#4D793F"
+    self.dgreen  = "#5C5E21"
     
     # build the dictionary of words
-    self.readfile("words.txt")
+    self.readfile("dictionary.txt")
     unplayable = True
     
     # keep track of how many boards were tried
@@ -161,7 +173,7 @@ class Boggle:
   # contains instructions for drawing the boggle board  
   def drawBoard(self, root):
     self.world   = [-1, -1, 1, 1]
-    self.bgcolor = '#ffffff'
+    self.bgcolor = "#F5E7C4"
     self.root    = root
     self.pad     = 25
     self._ALL    = 'all'
@@ -191,14 +203,16 @@ class Boggle:
     if self.upd%10 == 0: self.upd = 0
     self.redraw(self.upd)
     # redraw screen at faster rate for smoother interface
-    self.root.after(100,self.refresh)
+    if self.play: self.root.after(100,self.refresh)
 
   def redraw(self, sec):
     self.canvas.delete(self._ALL)
 
     # only decrement after a full second passes
-    if self.clock.remaining > 0 and sec == 0:
+    if self.clock.remaining > 0 and sec == 0 and not self.stopClock:
       self.clock.remaining -= 1
+    if self.stopClock:
+      self.clock.remaining = 0
 
     self.clock.countdown()
     self.paintgraphics()
@@ -207,9 +221,9 @@ class Boggle:
   def paintgraphics(self):
     # mac and windows size differently
     if platform.system() == "Windows":
-      size=20
+      self.text_size=20
     else:
-      size=35
+      self.text_size=35
     # 25px padding from edges
     r, c = 30, 30
     for i in range(5):
@@ -219,12 +233,10 @@ class Boggle:
             text=self.grid[i][j].letter, 
             anchor="w", 
             fill=self.grid[i][j].color, 
-            activefill="red",
-	    font="Arial %d bold" % size,
+            activefill=self.orange,
+	    font="Arial %d bold" % self.text_size,
         )
-        self.grid[i][j].x = r
-        self.grid[i][j].y = c
-	#print "%s :(%d, %d)" %(self.grid[i][j].letter, r, c)
+        self.grid[i][j].x, self.grid[i][j].y = r, c
 
         # increment row
         r += 65
@@ -233,25 +245,25 @@ class Boggle:
       # reset to first row
       r = 30
 
-      self.canvas.create_rectangle(235, 340, 310, 390, 
-	  fill="gray50", outline="gray40", 
-	  activefill="gray70", activeoutline="gray60"
+      self.canvas.create_rectangle(225, 335, 320, 395, 
+	  fill=self.green, outline=self.dgreen, 
+	  activefill=self.orange
 	  )
       self.canvas.create_text(245, 365, 
 	  anchor="w", 
-	  font="Arial %d bold" % (size/2), 
+	  font="Arial %d bold" % (self.text_size/2), 
 	  text="Submit\n Word"
 	  )
 
       # print user's found words
       if self.guessList:
-	coorx, coory = 330, 25
+	coorx, coory = 340, 25
 	for word in self.guessList:
           self.canvas.create_text(coorx, coory,
 			text=word.lower(),
 			anchor="w",
 			fill="black",
-			font="Arial %d" % (size/2)
+			font="Arial %d" % (self.text_size/2)
 			)
 	  coory += 20
 
@@ -305,8 +317,7 @@ class Boggle:
       word = word + l.letter
       l.select(False)
 
-    if self.find(word, self.foundWords):
-      print "Adding %s to list" %word
+    if self.find(word, self.foundWords) and not self.find(word, self.guessList):
       self.guessList.append(word)
     else:
       print "Not a word"
@@ -314,7 +325,11 @@ class Boggle:
     # reinitialize guess to empty
     self.guess = []
 
-    pprint.pprint(self.guessList)
+    # check if all words have been found
+    if len(self.guessList) == len(self.foundWords):
+      print "all words have been found"
+      self.stopClock = True
+      self.scoreBoard()
 
   def randomBoard(self):
     board    = defaultdict(lambda : defaultdict(list)) 
@@ -338,6 +353,25 @@ class Boggle:
       boardl -= 1
 
     return board
+
+  def scoreBoard(self):
+    self.score = 0
+    for word in self.guessList:
+      if len(word) > 7:    self.score += 11
+      elif len(word) == 7: self.score += 5
+      elif len(word) == 6: self.score += 3
+      elif len(word) == 5: self.score += 2
+      elif len(word) < 5: self.score += 1
+
+    print self.score
+    self.canvas.create_text(250, 345, 
+	  anchor="w", 
+	  font="Arial %d bold" % self.text_size, 
+	  text=self.score
+	  )
+
+    self.play = False
+
 
 def main():
   root = Tk()
