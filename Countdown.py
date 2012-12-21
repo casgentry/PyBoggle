@@ -40,9 +40,16 @@ class Countdown():
       size=50
     else:
       size=65
+
+    if self.remaining < 10 and self.remaining%2 == 1:
+        color = "red"
+    else:
+	color = "black"
+
     self.label = canvas.create_text(25, 360, 
         text=time, 
         width=200,
         anchor="w",
+	fill=color,
 	font="Arial %d bold" % size,
       )

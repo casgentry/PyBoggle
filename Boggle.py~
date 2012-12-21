@@ -188,10 +188,10 @@ class Boggle:
     
   def refresh(self):
     self.upd += 1
-    if self.upd%10 == 0: self.upd = 0
+    if self.upd%5 == 0: self.upd = 0
     self.redraw(self.upd)
     # redraw screen at faster rate for smoother interface
-    self.root.after(100,self.refresh)
+    self.root.after(200,self.refresh)
 
   def redraw(self, sec):
     self.canvas.delete(self._ALL)
