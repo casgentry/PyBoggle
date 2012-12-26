@@ -224,6 +224,11 @@ class Boggle:
       self.text_size=20
     else:
       self.text_size=35
+      
+    actfill = self.black  
+    if self.play:
+      actfill = self.orange
+      
     # 25px padding from edges
     r, c = 30, 30
     for i in range(5):
@@ -233,7 +238,7 @@ class Boggle:
             text=self.grid[i][j].letter, 
             anchor="w", 
             fill=self.grid[i][j].color, 
-            activefill=self.orange,
+            activefill=actfill,
 	    font="Arial %d bold" % self.text_size,
         )
         self.grid[i][j].x, self.grid[i][j].y = r, c
@@ -245,9 +250,14 @@ class Boggle:
       # reset to first row
       r = 30
 
+      if self.play:
+        act2fill = actfill
+      else:
+        act2fill = self.green
+        
       self.canvas.create_rectangle(225, 335, 320, 395, 
 	  fill=self.green, outline=self.dgreen, 
-	  activefill=self.orange
+	  activefill=act2fill
 	  )
       self.canvas.create_text(245, 365, 
 	  anchor="w", 
@@ -364,13 +374,14 @@ class Boggle:
       elif len(word) < 5: self.score += 1
 
     print self.score
-    self.canvas.create_text(250, 345, 
+    self.canvas.create_text(325, 350, 
 	  anchor="w", 
 	  font="Arial %d bold" % self.text_size, 
 	  text=self.score
 	  )
 
     self.play = False
+    self.redraw(0)
 
 
 def main():
