@@ -73,8 +73,8 @@ class Boggle:
     print "Tried %d" % newBoardstat + " board(s) before this one."
     
     # temporary, to see all possible words
-    #for i in self.foundWords:
-      #print i
+    for i in self.foundWords:
+      print i
     
     # create the board
     self.drawBoard(root)
@@ -180,7 +180,8 @@ class Boggle:
       )
       
     # start the countdown clock
-    self.clock = Countdown(180, self.canvas)
+    #self.clock = Countdown(180, self.canvas)
+    self.clock = Countdown(10, self.canvas)
     self.root.title('Boggle')
     # draw the board
     self.paintgraphics()    
@@ -200,8 +201,17 @@ class Boggle:
     # only decrement after a full second passes
     if self.clock.remaining > 0 and sec == 0 and not self.stopClock:
       self.clock.remaining -= 1
+      
+    if self.play and self.clock.remaining < 1:
+      self.scoreBoard()
+      
+    if self.clock.remaining < 1:
+      self.stopClock = True
+      self.play = False
+      
     if self.stopClock:
       self.clock.remaining = 0
+      self.play = False
 
     self.clock.countdown()
     self.paintgraphics()
@@ -281,20 +291,20 @@ class Boggle:
 
   #reads in user input
   def key(self, event):
-    if event.keysym == 'Return':
+    if event.keysym == 'Return' and self.play:
       self.tryWord()
 
     for i in range(5):
       for j in range(5):
-        if self.grid[i][j].letter.lower() == event.keysym.lower():
+        if self.grid[i][j].letter.lower() == event.keysym.lower() and self.play:
 	  self.buildWord(i, j)
 
   def mouseClick(self, mouseevent):
     # only process mouse clicks if it falls within the board
-    if mouseevent.x < 315 and mouseevent.y < 315:
+    if mouseevent.x < 315 and mouseevent.y < 315 and self.play:
       self.mouseWord(mouseevent.x, mouseevent.y)
 
-    if mouseevent.x > 235 and mouseevent.x < 310 and mouseevent.y > 340 and mouseevent.y < 390:
+    if mouseevent.x > 235 and mouseevent.x < 310 and mouseevent.y > 340 and mouseevent.y < 390 and self.play:
       self.tryWord()
 
   def mouseWord(self, x, y):
