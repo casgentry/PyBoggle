@@ -12,6 +12,7 @@ from Tile import *
 from Countdown import *
 from TrieNode import *
 from Tkinter import *
+import tkMessageBox
 from collections import defaultdict
 import random, sys, types, os, pprint, math, platform
 
@@ -55,7 +56,8 @@ class Boggle:
     
       for i in range(5):
         for j in range(5):
-          self.findWords("", i, j)
+          #print self.grid[i][j].letter
+          self.findWords("", None, i, j)
     
       # if there are not at least 10 possible words
       # create a different board
@@ -71,8 +73,8 @@ class Boggle:
     print "Tried %d" % newBoardstat + " board(s) before this one."
     
     # temporary, to see all possible words
-    for i in self.foundWords:
-      print i
+    #for i in self.foundWords:
+      #print i
     
     # create the board
     self.drawBoard(root)
@@ -89,12 +91,13 @@ class Boggle:
     
   # insert a word into the dictionary  
   def insert(self, line):
+    # if the root node doesn't exist yet, add it
     if not self.roots.has_key(line[0]):
       self.roots[line[0]] = TrieNode(line[0])
       #print "add "+self.roots[line[0]].letter+" to dictionary"
     #else:
       #print line[0]+" already exists in dictionary"
-      
+    # insert the rest of the word, send the root node and rest of word  
     self.insertWord(line[1:], self.roots[line[0]])
     
   # recursive method that inserts new word into trie tree  
@@ -114,10 +117,13 @@ class Boggle:
       self.insertWord(word[1:], nextChild)
       
   # depth first search starting with cell (i, j)
-  def findWords(self, prefix, row, col):
+  def findWords(self, prefix, node, row, col):
+    # add the next letter we're trying
     prefix = prefix + self.grid[row][col].letter
+      
     if row < 0 or col < 0 or row >= 5 or col >= 5:
       #system out of bounds
+      #print "System out of bounds"
       return
     
     if self.grid[row][col].visited:
@@ -126,49 +132,32 @@ class Boggle:
     
     # tile is visited  
     self.grid[row][col].visited = True
-    # grab root node for first letter
-    node = self.roots[prefix[0]]
     
-    if len(prefix) > 2:
-      if not self.existinTree(prefix, node):
-        self.grid[row][col].visited = False
-        
-      if self.isFullWord(prefix, node):
-        if not prefix in self.foundWords:
-          self.foundWords.append(prefix)
+    # get the first node for the root layer
+    if len(prefix) == 1 and prefix[0] in self.roots:
+      # grab root node for first letter
+      node = self.roots[prefix[0]]
+      
+    if not self.grid[row][col].letter in node.children and len(prefix) > 1:
+      self.grid[row][col].visited = False
+      return
+    else:
+      if len(prefix) > 1 and self.grid[row][col].letter in node.children:
+        node = node.children[self.grid[row][col].letter]
+      
+    # words must be at least 3 long, a full word, and not in list  
+    if len(prefix) > 2 and node.fullWord:
+      if not prefix in self.foundWords:
+        self.foundWords.append(prefix)
           
-    for a in range(-1, 1):
-      for b in range(-1, 1):
+    for a in range(-1, 2):
+      for b in range(-1, 2):
         nrow = row+a
         ncol = col+b
         if nrow >= 0 and ncol >= 0 and nrow < 5 and ncol < 5 and math.fabs(a) != math.fabs(b):
-          self.findWords(prefix, nrow, ncol)
-          
-    self.grid[row][col].visited = False
+          self.findWords(prefix, node, nrow, ncol)
     
-  # check if a word exists in the tree
-  def existinTree(self, prefix, node):
-    ret = True
-    if len(prefix) > 1:
-      if prefix[1] in node.children:
-        ret = self.existinTree(prefix[1:], node.children[prefix[1]])
-      else:
-        return False
-  
-    return ret
-  
-  # recursive method to search trie tree  
-  def isFullWord(self, word, node):
-    # if the length of the word is 0
-    if len(word) == 1:
-      # check if it's  complete word
-      return node.fullWord
-      
-    if node.children.has_key(word[1]):
-      send = node.children[word[1]]
-      return self.isFullWord(word[1:], send)
-    else:
-      return False
+    self.grid[row][col].visited = False
       
   # contains instructions for drawing the boggle board  
   def drawBoard(self, root):
@@ -236,7 +225,6 @@ class Boggle:
         # draw letter on the canvas
         self.canvas.create_text(r, c, 
             text=self.grid[i][j].letter, 
-            anchor="w", 
             fill=self.grid[i][j].color, 
             activefill=actfill,
 	    font="Arial %d bold" % self.text_size,
@@ -250,32 +238,46 @@ class Boggle:
       # reset to first row
       r = 30
 
-      if self.play:
-        act2fill = actfill
-      else:
-        act2fill = self.green
+    if self.play:
+      act2fill = actfill
+      fillclr  = self.green
+    else:
+      act2fill = self.orange
+      fillclr  = self.orange
         
-      self.canvas.create_rectangle(225, 335, 320, 395, 
-	  fill=self.green, outline=self.dgreen, 
+    self.canvas.create_rectangle(225, 335, 320, 395, 
+	  fill=fillclr, outline=self.dgreen, 
 	  activefill=act2fill
+	)
+	  
+    if not self.play:
+      self.canvas.create_text(255, 365, 
+	    font="Arial %d bold" % self.text_size,
+	    anchor="w", 
+	    text=self.score
 	  )
+    else:  
       self.canvas.create_text(245, 365, 
-	  anchor="w", 
-	  font="Arial %d bold" % (self.text_size/2), 
-	  text="Submit\n Word"
+	    font="Arial %d bold" % (self.text_size/2), 
+	    anchor="w",
+	    text="Submit\n Word"
 	  )
 
-      # print user's found words
-      if self.guessList:
-	coorx, coory = 340, 25
-	for word in self.guessList:
-          self.canvas.create_text(coorx, coory,
-			text=word.lower(),
-			anchor="w",
-			fill="black",
-			font="Arial %d" % (self.text_size/2)
-			)
-	  coory += 20
+    # print user's found words
+    if self.guessList:
+	  coorx, coory = 340, 25
+	  spaceH = 335
+	  pad = len(self.foundWords) * 2
+	  fontsize = (spaceH - pad)/len(self.foundWords)
+	  #print "%d minus %d divided by %d = %d" %(spaceH, pad, len(self.foundWords), fontsize)
+	  for word in self.guessList:
+	    self.canvas.create_text(coorx, coory,
+          text=word.lower(),
+          anchor="w",
+		  fill="black",
+		  font="Arial %d" % (fontsize)
+		)
+	    coory += fontsize+5
 
   #reads in user input
   def key(self, event):
@@ -330,7 +332,7 @@ class Boggle:
     if self.find(word, self.foundWords) and not self.find(word, self.guessList):
       self.guessList.append(word)
     else:
-      print "Not a word"
+      tkMessageBox.showinfo(title="ERROR",message=word+" is not a word.")
 
     # reinitialize guess to empty
     self.guess = []
@@ -374,11 +376,6 @@ class Boggle:
       elif len(word) < 5: self.score += 1
 
     print self.score
-    self.canvas.create_text(325, 350, 
-	  anchor="w", 
-	  font="Arial %d bold" % self.text_size, 
-	  text=self.score
-	  )
 
     self.play = False
     self.redraw(0)
