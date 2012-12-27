@@ -180,8 +180,7 @@ class Boggle:
       )
       
     # start the countdown clock
-    #self.clock = Countdown(180, self.canvas)
-    self.clock = Countdown(10, self.canvas)
+    self.clock = Countdown(180, self.canvas)
     self.root.title('Boggle')
     # draw the board
     self.paintgraphics()    
