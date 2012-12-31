@@ -49,7 +49,7 @@ class Boggle:
           #print self.grid[i][j].letter
           self.findWords("", None, i, j)
     
-      # if there are not at least 10 possible words
+      # if there are not at least 20 possible words
       # create a different board
       if len(self.foundWords) > 20:
         unplayable = False
@@ -172,6 +172,7 @@ class Boggle:
     # start the countdown clock
     self.clock = Countdown(180, self.canvas)
     self.root.title('Boggle')
+    
     # draw the board
     self.paintgraphics()    
     self.canvas.pack(fill=BOTH, expand=YES)
