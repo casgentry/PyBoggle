@@ -1,13 +1,3 @@
-"""
-  Date: 30 Nov 12
-  Author: Cas Gentry
-
-  Determine all english words found by starting
-  at any letter and traversing adjacent letters.
-  
-  Let user pick words & check against list.
-"""
-
 from Tile import *
 from Countdown import *
 from TrieNode import *
@@ -73,8 +63,8 @@ class Boggle:
     print "Tried %d" % newBoardstat + " board(s) before this one."
     
     # temporary, to see all possible words
-    for i in self.foundWords:
-      print i
+    #for i in self.foundWords:
+      #print i
     
     # create the board
     self.drawBoard(root)
