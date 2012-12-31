@@ -51,7 +51,7 @@ class Boggle:
     
       # if there are not at least 10 possible words
       # create a different board
-      if len(self.foundWords) > 10:
+      if len(self.foundWords) > 20:
         unplayable = False
       else:
         newBoardstat += 1
