@@ -46,7 +46,7 @@ class Countdown():
     else:
 	color = "black"
 
-    self.label = canvas.create_text(25, 360, 
+    self.label = canvas.create_text(10, 365, 
         text=time, 
         width=200,
         anchor="w",

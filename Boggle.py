@@ -239,29 +239,40 @@ class Boggle:
       r = 30
 
     if self.play:
-      act2fill = actfill
-      fillclr  = self.green
+      act2fill    = actfill
+      fillclr     = self.green
+      button_text = "Submit\n Word"
+      button_size = self.text_size/2
     else:
-      act2fill = self.orange
-      fillclr  = self.orange
+      act2fill    = self.orange
+      fillclr     = self.orange
+      button_text = self.score
+      button_size = self.text_size
         
-    self.canvas.create_rectangle(225, 335, 320, 395, 
+    self.canvas.create_rectangle(160, 335, 250, 395, 
 	  fill=fillclr, outline=self.dgreen, 
 	  activefill=act2fill
 	)
 	  
-    if not self.play:
-      self.canvas.create_text(255, 365, 
-	    font="Arial %d bold" % self.text_size,
-	    anchor="w", 
-	    text=self.score
-	  )
-    else:  
-      self.canvas.create_text(245, 365, 
-	    font="Arial %d bold" % (self.text_size/2), 
-	    anchor="w",
-	    text="Submit\n Word"
-	  )
+    self.canvas.create_text(175, 365, 
+	  font="Arial %d bold" % button_size,
+	  anchor="w", 
+	  text=button_text
+	)
+	
+    self.canvas.create_text(260, 350,
+      font="Helvetica %d bold" % self.text_size,
+      fill="#CFA130",
+      anchor="w",
+      text=len(self.foundWords)
+    )
+	
+    self.canvas.create_text(260, 375,
+	  font="Helvetica %d bold" % (self.text_size/3),
+      fill="#CFA130",
+	  anchor="w",
+	  text="possible words"
+	)
 
     # print user's found words
     if self.guessList:
@@ -329,10 +340,18 @@ class Boggle:
       word = word + l.letter
       l.select(False)
 
-    if self.find(word, self.foundWords) and not self.find(word, self.guessList):
-      self.guessList.append(word)
-    else:
+    # if the word is less than 3 characters long: ERROR
+    if len(word) < 3:
+      tkMessageBox.showinfo(title="ERROR",message="Words must be longer than 2 characters.")
+    # if the word does not exist on the board: ERROR
+    elif not self.find(word, self.foundWords):
       tkMessageBox.showinfo(title="ERROR",message=word+" is not a word.")
+    # if the word has already been found: ERROR
+    elif self.find(word, self.guessList):
+      tkMessageBox.showinfo(title="ERROR",message=word+" has already been found.")
+    # else add to the guessList
+    else:
+      self.guessList.append(word)
 
     # reinitialize guess to empty
     self.guess = []
