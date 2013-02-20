@@ -170,7 +170,7 @@ class Boggle:
       )
       
     # start the countdown clock
-    self.clock = Countdown(180, self.canvas)
+    self.clock = Countdown(10, self.canvas)
     self.root.title('Boggle')
     
     # draw the board
@@ -242,12 +242,12 @@ class Boggle:
       act2fill    = actfill
       fillclr     = self.green
       button_text = "Submit\n Word"
-      button_size = self.text_size/2
+      button_text2= "Possible: %d" % len(self.foundWords)
     else:
       act2fill    = self.orange
       fillclr     = self.orange
-      button_text = self.score
-      button_size = self.text_size
+      button_text = "Play\nAgain?"
+      button_text2= "Found %d\nout of %d\npossible words" % (len(self.guessList), len(self.foundWords))
         
     self.canvas.create_rectangle(160, 335, 250, 395, 
 	  fill=fillclr, outline=self.dgreen, 
@@ -255,24 +255,17 @@ class Boggle:
 	)
 	  
     self.canvas.create_text(175, 365, 
-	  font="Arial %d bold" % button_size,
+	  font="Arial %d bold" % (self.text_size/2),
 	  anchor="w", 
 	  text=button_text
 	)
 	
     self.canvas.create_text(260, 350,
-      font="Helvetica %d bold" % self.text_size,
+      font="Helvetica %d bold" % (self.text_size/2),
       fill="#CFA130",
       anchor="w",
-      text=len(self.foundWords)
+      text=button_text2
     )
-	
-    self.canvas.create_text(260, 375,
-	  font="Helvetica %d bold" % (self.text_size/3),
-      fill="#CFA130",
-	  anchor="w",
-	  text="possible words"
-	)
 
     # print user's found words
     if self.guessList:
@@ -305,8 +298,11 @@ class Boggle:
     if mouseevent.x < 315 and mouseevent.y < 315 and self.play:
       self.mouseWord(mouseevent.x, mouseevent.y)
 
-    if mouseevent.x > 235 and mouseevent.x < 310 and mouseevent.y > 340 and mouseevent.y < 390 and self.play:
-      self.tryWord()
+    if mouseevent.x > 160 and mouseevent.x < 250 and mouseevent.y > 335 and mouseevent.y < 395:
+      if self.play:
+        self.tryWord()
+      else:
+        self.restartGame(self.root)
 
   def mouseWord(self, x, y):
     # map mouse clicks to a particular letter
@@ -399,10 +395,18 @@ class Boggle:
     self.play = False
     self.redraw(0)
 
-
+  def restartGame(self, root):
+    #restart the game somehow
+    print "here"
+    
 def main():
   root = Tk()
-  Boggle(root)
+  #root.status = True
+  b = Boggle(root)
+  #if not root.status:
+    #del b
+    #root.status = True
+    #b = Boggle(root)
     
   if not _inidle:
     root.mainloop()
